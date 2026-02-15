@@ -1,7 +1,8 @@
-import { Video, CheckCircle, AlertCircle, Clock, ExternalLink } from 'lucide-react';
+import { Video, CheckCircle, AlertCircle, Clock, ExternalLink, LogOut } from 'lucide-react';
 import fs from 'fs';
 import path from 'path';
 import { parse } from 'csv-parse/sync';
+import Link from 'next/link';
 
 async function getVideos() {
   try {
@@ -32,8 +33,13 @@ export default async function Home() {
             <h1 className="text-3xl font-bold text-gray-900">Video Review Portal</h1>
             <p className="text-gray-500 mt-2">Skill Position Pro Training Dataset Review</p>
           </div>
-          <div className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium shadow-sm hover:bg-blue-700 cursor-pointer transition">
-            Sync from Drive
+          <div className="flex items-center space-x-4">
+            <div className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium shadow-sm hover:bg-blue-700 cursor-pointer transition">
+              Sync from Drive
+            </div>
+            <Link href="/login" className="p-2 text-gray-400 hover:text-gray-600 transition">
+              <LogOut size={20} />
+            </Link>
           </div>
         </header>
 
