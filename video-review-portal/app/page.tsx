@@ -1,30 +1,50 @@
-import { Video, CheckCircle, AlertCircle, Clock, ExternalLink } from 'lucide-react';
+import { Video, CheckCircle, AlertCircle, Clock, ExternalLink, Files } from 'lucide-react';
 import fs from 'fs';
 import path from 'path';
 import { parse } from 'csv-parse/sync';
 import Header from '@/components/Header';
 
-async function getVideos() {
+async function getReviewVideos() {
   try {
     const csvPath = path.join(process.cwd(), 'data', 'videos_for_review.csv');
     if (!fs.existsSync(csvPath)) return [];
     
     const fileContent = fs.readFileSync(csvPath, 'utf8');
-    const records = parse(fileContent, {
-      columns: true,
-      skip_empty_lines: true,
-    });
-    return records;
+    return parse(fileContent, { columns: true, skip_empty_lines: true });
   } catch (error) {
-    console.error('Error reading CSV:', error);
+    console.error('Error reading review CSV:', error);
+    return [];
+  }
+}
+
+async function getCleanVideos() {
+  try {
+    const csvPath = path.join(process.cwd(), 'data', 'categorized_videos.csv');
+    if (!fs.existsSync(csvPath)) return [];
+    
+    const fileContent = fs.readFileSync(csvPath, 'utf8');
+    return parse(fileContent, { columns: true, skip_empty_lines: true });
+  } catch (error) {
+    console.error('Error reading categorized CSV:', error);
     return [];
   }
 }
 
 export default async function Home() {
-  const videos = await getVideos();
-  const pendingCount = videos.length;
+  const reviewVideos = await getReviewVideos();
+  const allVideos = await getCleanVideos();
   
+  const pendingCount = reviewVideos.length;
+  const totalRecords = allVideos.length;
+  
+  // Calculate duplicates and unique counts
+  const uniqueFiles = new Set(allVideos.map((v: any) => v.filename.replace(/\s*\(\d+\)$/, '')));
+  const uniqueCount = uniqueFiles.size;
+  
+  const flaggedCount = reviewVideos.filter((v: any) => 
+    v.issues.includes('GARBAGE_TRANSCRIPT') || v.issues.includes('NON_DRILL_CONTENT')
+  ).length;
+
   return (
     <main className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-6xl mx-auto">
@@ -32,15 +52,17 @@ export default async function Home() {
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
           <StatCard icon={<Clock className="text-blue-500" />} label="Pending Review" value={pendingCount.toString()} />
-          <StatCard icon={<CheckCircle className="text-green-500" />} label="Completed" value="856" />
-          <StatCard icon={<AlertCircle className="text-red-500" />} label="Flagged" value="12" />
-          <StatCard icon={<Video className="text-purple-500" />} label="Total Videos" value={(pendingCount + 856).toString()} />
+          <StatCard icon={<Files className="text-green-500" />} label="Unique Videos" value={uniqueCount.toString()} />
+          <StatCard icon={<AlertCircle className="text-red-500" />} label="Flagged Issues" value={flaggedCount.toString()} />
+          <StatCard icon={<Video className="text-purple-500" />} label="Total Records" value={totalRecords.toString()} />
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="p-6 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
             <h2 className="font-semibold text-gray-800">Videos for Review</h2>
-            <span className="text-sm text-blue-600 hover:underline cursor-pointer font-medium">Download CSV</span>
+            <div className="flex space-x-2 text-sm">
+                <span className="text-gray-400">Total in Drive: ~401</span>
+            </div>
           </div>
           <div className="p-0 overflow-x-auto">
             <table className="w-full text-left">
@@ -54,7 +76,7 @@ export default async function Home() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {videos.slice(0, 15).map((video: any, i: number) => (
+                {reviewVideos.slice(0, 15).map((video: any, i: number) => (
                   <tr key={i} className="hover:bg-gray-50 transition">
                     <td className="px-6 py-4 font-medium text-gray-700">{video.filename}</td>
                     <td className="px-6 py-4 text-gray-500">{video.current_category}</td>
@@ -78,9 +100,9 @@ export default async function Home() {
               </tbody>
             </table>
           </div>
-          {videos.length > 15 && (
+          {reviewVideos.length > 15 && (
             <div className="p-4 text-center border-t border-gray-100 text-gray-500 text-sm">
-              Showing first 15 of {videos.length} videos
+              Showing first 15 of {reviewVideos.length} videos needing review
             </div>
           )}
         </div>
