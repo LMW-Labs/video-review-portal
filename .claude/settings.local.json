@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python video_cleanup_analyzer.py:*)",
+      "Bash(dir /b \"c:\\\\Users\\\\teamw\\\\mydev\\\\skill_position_pro\")",
+      "Bash(python:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}

@@ -1,0 +1,38 @@
+# Video Files (Large binaries)
+*.mp4
+*.mov
+*.avi
+*.wmv
+*.rar
+*.zip
+openai_analysis/*.mp4
+openai_analysis/*.mov
+openai_analysis/thumbnails/
+
+# Dependencies
+node_modules/
+/video-review-portal/node_modules/
+/video-review-portal/.next/
+/venv/
+/openai_analysis/venv/
+**/node_modules/
+**/.next/
+**/venv/
+
+# Environment
+.env
+.env.local
+video-review-portal/.env.local
+
+# Project specific
+*.log
+token.pickle
+credentials.json
+.dart_tool/
+.packages
+build/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
