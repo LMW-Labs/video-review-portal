@@ -34,8 +34,15 @@ export default async function Home() {
   const allVideos = await getCleanVideos();
   
   return (
-    <main className="min-h-screen bg-gray-50 p-8">
-      <Dashboard initialVideos={reviewVideos} initialAllVideos={allVideos} />
+    <main className="min-h-screen bg-gray-50 p-8 relative overflow-hidden">
+      {/* Background Watermark */}
+      <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-0 opacity-[0.03]">
+        <img src="/logo.png" alt="" className="w-[600px] h-auto grayscale" />
+      </div>
+
+      <div className="relative z-10">
+        <Dashboard initialVideos={reviewVideos} initialAllVideos={allVideos} />
+      </div>
     </main>
   );
 }
