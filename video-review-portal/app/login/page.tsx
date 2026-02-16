@@ -39,13 +39,13 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <div className="flex justify-center mb-4">
-          <div className="bg-blue-600 p-3 rounded-2xl shadow-lg">
-            <Video className="text-white w-8 h-8" />
+        <div className="flex justify-center mb-6">
+          <div className="bg-white p-2 rounded-2xl shadow-xl border border-gray-100">
+            <img src="/logo.png" alt="Skill Position Pro" className="h-20 w-auto" />
           </div>
         </div>
-        <h2 className="text-3xl font-extrabold text-gray-900">Skill Position Pro</h2>
-        <p className="mt-2 text-sm text-gray-600">Review Portal Login</p>
+        <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">Review Portal</h2>
+        <p className="mt-2 text-sm text-gray-500 font-medium">Authorized Personnel Only</p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">

@@ -15,13 +15,13 @@ export default function Header() {
 
   return (
     <header className="mb-10 flex justify-between items-center">
-      <div className="flex items-center space-x-3">
-        <div className="bg-blue-600 p-2 rounded-lg shadow-sm">
-          <Video className="text-white w-6 h-6" />
+      <div className="flex items-center space-x-4">
+        <div className="bg-white p-1 rounded-xl shadow-sm border border-gray-100">
+          <img src="/logo.png" alt="Skill Position Pro" className="h-12 w-auto object-contain" />
         </div>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Video Review Portal</h1>
-          <p className="text-gray-500 text-sm">Skill Position Pro Training Dataset Review</p>
+          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Video Review Portal</h1>
+          <p className="text-gray-500 text-sm font-medium">Elite Training Dataset Review</p>
         </div>
       </div>
       <div className="flex items-center space-x-4">
