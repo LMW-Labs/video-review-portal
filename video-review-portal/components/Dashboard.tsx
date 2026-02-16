@@ -9,6 +9,12 @@ export default function Dashboard({ initialVideos, initialAllVideos }: { initial
   const [filter, setFilter] = useState('ALL');
   const [searchTerm, setSearchTerm] = useState('');
   const [updating, setUpdating] = useState<string | null>(null);
+  const [playingId, setPlayingId] = useState<string | null>(null);
+
+  const getDriveId = (link: string) => {
+    const match = link.match(/\/d\/([^/]+)/);
+    return match ? match[1] : null;
+  };
 
   // Stats calculation
   const pendingCount = videos.filter(v => !v.reviewer_decision).length;
@@ -120,19 +126,55 @@ export default function Dashboard({ initialVideos, initialAllVideos }: { initial
           <table className="w-full text-left">
             <thead>
               <tr className="text-xs uppercase text-gray-400 font-semibold bg-gray-50/50 border-b border-gray-100">
-                <th className="px-6 py-4">Video Info</th>
+                <th className="px-6 py-4">Video</th>
                 <th className="px-6 py-4">Action Required</th>
                 <th className="px-6 py-4">Issues</th>
                 <th className="px-6 py-4 text-center">Review Decision</th>
-                <th className="px-6 py-4 text-right">Preview</th>
+                <th className="px-6 py-4 text-right">Link</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filteredVideos.slice(0, 50).map((video: any, i: number) => (
+              {filteredVideos.slice(0, 50).map((video: any, i: number) => {
+                const driveId = getDriveId(video.video_link);
+                const isPlaying = playingId === driveId && driveId;
+
+                return (
                 <tr key={i} className={`hover:bg-gray-50 transition ${video.reviewer_decision ? 'bg-gray-50/30' : ''}`}>
                   <td className="px-6 py-4">
-                    <p className="font-medium text-gray-700 truncate max-w-[200px]">{video.filename}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">{video.current_category}</p>
+                    <div className="flex items-start space-x-4">
+                      <div className="relative flex-shrink-0 w-32 h-20 bg-black rounded-lg overflow-hidden shadow-sm group">
+                        {isPlaying ? (
+                          <iframe 
+                            src={`https://drive.google.com/file/d/${driveId}/preview`}
+                            className="w-full h-full border-0"
+                            allow="autoplay"
+                          />
+                        ) : (
+                          <>
+                            <img 
+                              src={`https://drive.google.com/thumbnail?id=${driveId}&sz=w400`}
+                              className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition"
+                              alt={video.filename}
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = 'https://placehold.co/400x225/000000/FFFFFF?text=No+Preview';
+                              }}
+                            />
+                            <button 
+                              onClick={() => setPlayingId(driveId)}
+                              className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition"
+                            >
+                              <div className="bg-white/90 p-2 rounded-full shadow-lg group-hover:scale-110 transition">
+                                <Video className="w-4 h-4 text-blue-600" />
+                              </div>
+                            </button>
+                          </>
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1 py-1">
+                        <p className="font-medium text-gray-700 text-sm truncate" title={video.filename}>{video.filename}</p>
+                        <p className="text-[10px] text-gray-400 mt-1 uppercase font-semibold">{video.current_category}</p>
+                      </div>
+                    </div>
                   </td>
                   <td className="px-6 py-4">
                     <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${
