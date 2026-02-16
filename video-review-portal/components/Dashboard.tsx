@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Video, CheckCircle, AlertCircle, Clock, ExternalLink, Files, Check, X, Edit2, Search, Filter } from 'lucide-react';
+import React, { useState } from 'react';
+import { Video, CheckCircle, AlertCircle, Clock, ExternalLink, Files, Check, X, Edit2, Search, Filter, LogOut } from 'lucide-react';
 import Header from './Header';
 
 export default function Dashboard({ initialVideos, initialAllVideos }: { initialVideos: any[], initialAllVideos: any[] }) {
@@ -34,7 +34,6 @@ export default function Dashboard({ initialVideos, initialAllVideos }: { initial
     if (filter === 'ALL') return matchesSearch;
     if (filter === 'PENDING') return matchesSearch && !v.reviewer_decision;
     if (filter === 'FLAGGED') return matchesSearch && (v.issues.includes('GARBAGE_TRANSCRIPT') || v.issues.includes('NON_DRILL_CONTENT'));
-    if (filter === 'UNIQUE') return matchesSearch; // For simplicity in this UI
     return matchesSearch;
   });
 
@@ -139,114 +138,115 @@ export default function Dashboard({ initialVideos, initialAllVideos }: { initial
                 const isPlaying = playingId === driveId && driveId;
 
                 return (
-                <tr key={i} className={`hover:bg-gray-50 transition ${video.reviewer_decision ? 'bg-gray-50/30' : ''}`}>
-                  <td className="px-6 py-4">
-                    <div className="flex items-start space-x-4">
-                      <div className="relative flex-shrink-0 w-32 h-20 bg-black rounded-lg overflow-hidden shadow-sm group">
-                        {isPlaying ? (
-                          <iframe 
-                            src={`https://drive.google.com/file/d/${driveId}/preview`}
-                            className="w-full h-full border-0"
-                            allow="autoplay"
-                          />
-                        ) : (
-                          <>
-                            <img 
-                              src={`https://drive.google.com/thumbnail?id=${driveId}&sz=w400`}
-                              className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition"
-                              alt={video.filename}
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).src = 'https://placehold.co/400x225/000000/FFFFFF?text=No+Preview';
-                              }}
+                  <tr key={i} className={`hover:bg-gray-50 transition ${video.reviewer_decision ? 'bg-gray-50/30' : ''}`}>
+                    <td className="px-6 py-4">
+                      <div className="flex items-start space-x-4">
+                        <div className="relative flex-shrink-0 w-32 h-20 bg-black rounded-lg overflow-hidden shadow-sm group">
+                          {isPlaying ? (
+                            <iframe 
+                              src={`https://drive.google.com/file/d/${driveId}/preview`}
+                              className="w-full h-full border-0"
+                              allow="autoplay"
                             />
-                            <button 
-                              onClick={() => setPlayingId(driveId)}
-                              className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition"
-                            >
-                              <div className="bg-white/90 p-2 rounded-full shadow-lg group-hover:scale-110 transition">
-                                <Video className="w-4 h-4 text-blue-600" />
-                              </div>
-                            </button>
-                          </>
-                        )}
-                      </div>
-                      <div className="min-w-0 flex-1 py-1">
-                        <p className="font-medium text-gray-700 text-sm truncate" title={video.filename}>{video.filename}</p>
-                        <p className="text-[10px] text-gray-400 mt-1 uppercase font-semibold">{video.current_category}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${
-                      video.action === 'REMOVE' ? 'text-red-600 bg-red-50' : 
-                      video.action === 'REVIEW' ? 'text-blue-600 bg-blue-50' : 
-                      'text-yellow-600 bg-yellow-50'
-                    }`}>
-                      {video.action}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <p className="text-gray-400 text-xs max-w-[150px] truncate" title={video.issues}>
-                        {video.issues}
-                    </p>
-                  </td>
-                  <td className="px-6 py-4">
-                    {updating === video.filename ? (
-                        <div className="flex justify-center"><Clock className="animate-spin text-blue-500 w-5 h-5" /></div>
-                    ) : video.reviewer_decision ? (
-                        <div className="flex items-center justify-center space-x-2 text-green-600 font-medium text-sm">
-                            <CheckCircle size={16} />
-                            <span>{video.reviewer_decision}</span>
-                            <button onClick={() => handleDecision(video.filename, '')} className="text-gray-300 hover:text-gray-500">
-                                <Edit2 size={12} />
-                            </button>
-                        </div>
-                    ) : (
-                        <div className="flex items-center justify-center space-x-2">
-                            <button 
-                                onClick={() => handleDecision(video.filename, 'KEEP')}
-                                className="p-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition"
-                                title="Approve Current"
-                            >
-                                <Check size={18} />
-                            </button>
-                            <button 
-                                onClick={() => handleDecision(video.filename, 'REMOVE')}
-                                className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition"
-                                title="Remove Video"
-                            >
-                                <X size={18} />
-                            </button>
-                            <div className="relative group">
-                                <button 
-                                    className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition"
-                                    title="Recategorize"
-                                >
-                                    <Edit2 size={18} />
-                                </button>
-                                <div className="absolute right-0 bottom-full mb-2 hidden group-hover:block bg-white shadow-xl border border-gray-100 rounded-xl p-2 z-50 w-48">
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase px-2 py-1">New Category</p>
-                                    {VALID_CATEGORIES.map(cat => (
-                                        <button 
-                                            key={cat}
-                                            onClick={() => handleDecision(video.filename, 'RECATEGORIZE', cat)}
-                                            className="w-full text-left px-3 py-1.5 text-xs text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-md transition"
-                                        >
-                                            {cat}
-                                        </button>
-                                    ))}
+                          ) : (
+                            <>
+                              <img 
+                                src={`https://drive.google.com/thumbnail?id=${driveId}&sz=w400`}
+                                className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition"
+                                alt={video.filename}
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src = 'https://placehold.co/400x225/000000/FFFFFF?text=No+Preview';
+                                }}
+                              />
+                              <button 
+                                onClick={() => setPlayingId(driveId)}
+                                className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition"
+                              >
+                                <div className="bg-white/90 p-2 rounded-full shadow-lg group-hover:scale-110 transition">
+                                  <Video className="w-4 h-4 text-blue-600" />
                                 </div>
-                            </div>
+                              </button>
+                            </>
+                          )}
                         </div>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <a href={video.video_link} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 inline-block p-2 bg-blue-50 rounded-lg">
-                      <ExternalLink size={18} />
-                    </a>
-                  </td>
-                </tr>
-              ))}
+                        <div className="min-w-0 flex-1 py-1">
+                          <p className="font-medium text-gray-700 text-sm truncate" title={video.filename}>{video.filename}</p>
+                          <p className="text-[10px] text-gray-400 mt-1 uppercase font-semibold">{video.current_category}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${
+                        video.action === 'REMOVE' ? 'text-red-600 bg-red-50' : 
+                        video.action === 'REVIEW' ? 'text-blue-600 bg-blue-50' : 
+                        'text-yellow-600 bg-yellow-50'
+                      }`}>
+                        {video.action}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="text-gray-400 text-xs max-w-[150px] truncate" title={video.issues}>
+                          {video.issues}
+                      </p>
+                    </td>
+                    <td className="px-6 py-4">
+                      {updating === video.filename ? (
+                          <div className="flex justify-center"><Clock className="animate-spin text-blue-500 w-5 h-5" /></div>
+                      ) : video.reviewer_decision ? (
+                          <div className="flex items-center justify-center space-x-2 text-green-600 font-medium text-sm">
+                              <CheckCircle size={16} />
+                              <span>{video.reviewer_decision}</span>
+                              <button onClick={() => handleDecision(video.filename, '')} className="text-gray-300 hover:text-gray-500">
+                                  <Edit2 size={12} />
+                              </button>
+                          </div>
+                      ) : (
+                          <div className="flex items-center justify-center space-x-2">
+                              <button 
+                                  onClick={() => handleDecision(video.filename, 'KEEP')}
+                                  className="p-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition"
+                                  title="Approve Current"
+                              >
+                                  <Check size={18} />
+                              </button>
+                              <button 
+                                  onClick={() => handleDecision(video.filename, 'REMOVE')}
+                                  className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition"
+                                  title="Remove Video"
+                              >
+                                  <X size={18} />
+                              </button>
+                              <div className="relative group">
+                                  <button 
+                                      className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition"
+                                      title="Recategorize"
+                                  >
+                                      <Edit2 size={18} />
+                                  </button>
+                                  <div className="absolute right-0 bottom-full mb-2 hidden group-hover:block bg-white shadow-xl border border-gray-100 rounded-xl p-2 z-50 w-48">
+                                      <p className="text-[10px] font-bold text-gray-400 uppercase px-2 py-1">New Category</p>
+                                      {VALID_CATEGORIES.map(cat => (
+                                          <button 
+                                              key={cat}
+                                              onClick={() => handleDecision(video.filename, 'RECATEGORIZE', cat)}
+                                              className="w-full text-left px-3 py-1.5 text-xs text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-md transition"
+                                          >
+                                              {cat}
+                                          </button>
+                                      ))}
+                                  </div>
+                              </div>
+                          </div>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <a href={video.video_link} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 inline-block p-2 bg-blue-50 rounded-lg">
+                        <ExternalLink size={18} />
+                      </a>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
