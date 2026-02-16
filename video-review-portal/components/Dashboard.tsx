@@ -13,7 +13,11 @@ export default function Dashboard({ initialVideos, initialAllVideos }: { initial
   // Stats calculation
   const pendingCount = videos.filter(v => !v.reviewer_decision).length;
   const totalRecords = initialAllVideos.length;
-  const uniqueFiles = new Set(initialAllVideos.map((v: any) => v.filename.replace(/\s*\(\d+\)$/, '')));
+  
+  // Strip extension and duplicate suffixes like " (1)" to find unique videos
+  const uniqueFiles = new Set(initialAllVideos.map((v: any) => {
+    return v.filename.replace(/\s*\(\d+\)?(\.[^.]+)$/, '').replace(/\.[^.]+$/, '');
+  }));
   const uniqueCount = uniqueFiles.size;
   const flaggedCount = videos.filter((v: any) => 
     v.issues.includes('GARBAGE_TRANSCRIPT') || v.issues.includes('NON_DRILL_CONTENT')
